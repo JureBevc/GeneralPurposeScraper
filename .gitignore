@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Scraper driver
+geckodriver.exe
+geckodriver.log
