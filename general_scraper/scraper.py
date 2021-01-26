@@ -3,28 +3,27 @@ import os
 import threading
 import sys
 from urllib.parse import urlparse
-from spider import Spider
+from general_scraper.spider import Spider
 
 
 class Scraper:
 
-    thread_count = 0
-    threads = []
-    driver_instances = []
-
-    url_queue = []
-    visited = []
-    initial_urls = []
-    driver_path = None
-
     start_time = 0
 
-    def __init__(self, initial_urls, extractor, url_match=[], thread_count=1, driver_path=None):
+    def __init__(self, initial_urls, extractor, url_match=[], thread_count=1, driver_path=None, status_callback=None):
+        self.threads = []
+        self.driver_instances = []
+        self.url_queue = []
+        self.visited = []
         self.initial_urls = initial_urls
         self.url_match = url_match
         self.extractor = extractor
         self.driver_path = driver_path
         self.thread_count = thread_count
+        self.status_callback = status_callback
+
+        for i in range(len(self.url_match)):
+            self.url_match[i] = urlparse(self.url_match[i]).netloc
 
     def start(self):
         self.start_time = time.time()
@@ -43,20 +42,31 @@ class Scraper:
             self.threads.append(spider_thread)
         
         try:
+            print("Starting spider threads ({})".format(len(self.threads)))
             # Start spider threads
             for i in range(self.thread_count):
                 self.threads[i].start()
             
+            print("Threads running..." + str(self.alive_count()))
             # Wait for threads
             while self.alive_count() > 0:
-                print(self.status_string())
+                #print(self.status_string())
+                if self.status_callback:
+                    self.status_callback(self.status())
                 time.sleep(10)
+            print("Ending...")
         except (KeyboardInterrupt, SystemExit):
-            for i in range(self.thread_count):
-                self.threads[i].stop()
-            while self.alive_count() > 0:
-                print("Stopping {}...".format(self.alive_count()))
-                time.sleep(1)
+            print("Exiting...")
+            self.stop()
+
+    def stop(self):
+        for i in range(self.thread_count):
+            self.threads[i].stop()
+        while self.alive_count() > 0:
+            print("Stopping {}...".format(self.alive_count()))
+            time.sleep(0.2)
+        self.threads = []
+        self.quit_all_drivers()
 
     def pop_queue(self):
         if len(self.url_queue) == 0:
@@ -96,9 +106,10 @@ class Scraper:
             except Exception as e:
                 pass
 
-    def status_string(self):
-        return "\t---Status---\n\tElapsed time: {}\n\tAlive threads: {}\n\tQueue size: {}\n\tVisited: {}".format(
-            str(int(time.time()-self.start_time)) + "s",
-            self.alive_count(), 
-            len(self.url_queue),
-            len(self.visited))
+    def status(self):
+        return {"elapsed_time": int(time.time()-self.start_time),
+            "alive_threads": self.alive_count(),
+            "queue_size": len(self.url_queue),
+            "visited": len(self.visited),
+            "extracted": self.extractor.total_extractions,
+            "saved": self.extractor.total_saved}

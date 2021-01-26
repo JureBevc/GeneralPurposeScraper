@@ -131,3 +131,6 @@ dmypy.json
 # Scraper driver
 geckodriver.exe
 geckodriver.log
+
+# Scraped content
+extracted.html

@@ -24,10 +24,11 @@ class Spider(threading.Thread):
     def run(self):
         while not self.clean_and_exit:
             time.sleep(3)
+            if self.clean_and_exit:
+                break
             try:
                 current_url = self.scraper.pop_queue()
                 if not current_url:
-                    time.sleep(1)
                     continue
                 
                 print("[{}] Fetching {}".format(self.name, current_url))
@@ -51,8 +52,6 @@ class Spider(threading.Thread):
             except Exception as e:
                 pass
                 print(e)
-                #driver.quit()
-            #self.driver.close()
         self.driver.quit()
 
     def stop(self):

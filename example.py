@@ -4,8 +4,8 @@ import time
 import os
 import threading
 import sys
-from scraper import Scraper
-from extractor import Extractor
+from general_scraper.scraper import Scraper
+from general_scraper.extractor import Extractor
 
 
 image_id = 0
@@ -29,13 +29,17 @@ def element_extraction(element):
     except Exception as e:
         pass
 
+def print_status(status):
+    print(status)
+
 if __name__=="__main__":
     # write_thread = threading.Thread(target=write_images)
     # write_thread.daemon = True
     # write_thread.start()
-    extract = Extractor("//div[@data-testid='tweet']")
-    s = Scraper(["https://twitter.com/georgemofficial"], extract, url_match=["twitter.com", "www.twitter.com"], thread_count=10)
+    extract = Extractor("//div[@data-testid='tweet' and (contains(string(), 'covid') or contains(string(), 'korona'))]")
+    s = Scraper(["https://twitter.com/slovenija"], extract, url_match=["twitter.com", "www.twitter.com"], thread_count=3, status_callback=print_status)
     try:
         s.start()
     except Exception as e:
+        print(e)
         s.quit_all_drivers()
