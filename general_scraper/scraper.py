@@ -22,9 +22,6 @@ class Scraper:
         self.thread_count = thread_count
         self.status_callback = status_callback
 
-        for i in range(len(self.url_match)):
-            self.url_match[i] = urlparse(self.url_match[i]).netloc
-
     def start(self):
         self.start_time = time.time()
         # Add initial urls to queue

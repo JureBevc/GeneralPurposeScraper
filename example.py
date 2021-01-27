@@ -36,8 +36,8 @@ if __name__=="__main__":
     # write_thread = threading.Thread(target=write_images)
     # write_thread.daemon = True
     # write_thread.start()
-    extract = Extractor("//div[@data-testid='tweet' and (contains(string(), 'covid') or contains(string(), 'korona'))]")
-    s = Scraper(["https://twitter.com/slovenija"], extract, url_match=["twitter.com", "www.twitter.com"], thread_count=3, status_callback=print_status)
+    extract = Extractor("//div[@data-testid='tweet' and contains(string(), 'covid')]")
+    s = Scraper(["https://twitter.com/WHO_Europe"], extract, url_match=["twitter.com", "www.twitter.com"], thread_count=3, status_callback=print_status)
     try:
         s.start()
     except Exception as e:
