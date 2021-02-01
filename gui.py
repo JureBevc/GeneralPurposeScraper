@@ -6,9 +6,7 @@ import time
 from general_scraper.scraper import Scraper
 from general_scraper.extractor import Extractor
 
-bg_color = "#f4f1de"
-
-
+bg_color = "#fefae0"
 
 extract = None
 scraper = None
@@ -22,11 +20,28 @@ def scraper_thread_method():
     except Exception as e:
         print(e)
         scraper.stop()
-    status_lbl["text"] = "Status (STOPPED):\n"
+    status_lbl["text"] = "Status (STOPPED):\nScraper ready."
 
-def print_status(text):
-    global status_lbl, start_scraper
-    status_lbl["text"] = "Status(" + ("RUNNING" if start_scraper else "STOPPING") + "):\n" + str(text)
+def stop_scraper_method():
+    global scraper, go_btn
+    if scraper:
+        scraper.stop()
+    go_btn["state"] = ACTIVE
+
+def print_status(status):
+    global status_lbl, start_scraper, scraper, go_btn
+    if start_scraper:
+        go_btn["state"] = ACTIVE
+        status_lbl["text"] = "Status (RUNNING):\n" + """
+Elapsed time: {} s
+Queue size: {}
+Visited: {}
+Extracted: {}
+Saved: {}
+        """.format(status["elapsed_time"], status["queue_size"], status["visited"],
+        status["extracted"], status["saved"])
+    else:
+        status_lbl["text"] = "Status (STOPPING):\nStopping {} crawlers...".format(scraper.alive_count())
 
 def toggle_button():
     global start_scraper, go_btn, status_lbl, xpath_txt, url_txt, limit_txt, threads_txt, extract_html_check, status_lbl
@@ -45,14 +60,18 @@ def toggle_button():
         scraper_thread.daemon = True
         scraper_thread.start()
 
+        go_btn["state"] = DISABLED
         go_btn["text"] = "Stop"
         go_btn["bg"] = "#e07a5f"
-        status_lbl["text"] = "Status (RUNNING):\n"
+        status_lbl["text"] = "Status (RUNNING):\nStarting {} crawlers.".format(scraper.thread_count)
     else:
-        scraper.stop()
+        stop_scraper_thread = threading.Thread(target=stop_scraper_method)
+        stop_scraper_thread.daemon = True
+        stop_scraper_thread.start()
+        status_lbl["text"] = "Status (STOPPING):\nStopping {} crawlers ...".format(scraper.thread_count)
+        go_btn["state"] = DISABLED
         go_btn["text"] = "Go!"
         go_btn["bg"] = "#81b29a"
-        status_lbl["text"] = "Status (STOPPING):\n"
 
 def only_numbers(char):
     return char.isdigit()
@@ -73,13 +92,13 @@ limit_lbl = Label(window, text="Limit URLs:", bg=bg_color,fg="#121113", font="bo
 limit_lbl.pack(side=TOP)
 limit_txt = scrolledtext.ScrolledText(window, undo=True, height=6)
 limit_txt.pack(side=TOP)
-limit_txt.insert(INSERT, "https://twitter.com\nhttps://www.twitter.com")
+limit_txt.insert(INSERT, "twitter.com\nwww.twitter.com")
 
 xpath_lbl = Label(window, text="XPath expression:", bg=bg_color,fg="#121113", font="bold")
 xpath_lbl.pack(side=TOP)
 xpath_txt = Entry(window, width=100, justify="center")
 xpath_txt.pack(side=TOP)
-xpath_txt.insert(0, "//div[@data-testid='tweet' and (contains(string(), 'covid') or contains(string(), 'korona'))]")
+xpath_txt.insert(0, "//div[@data-testid='tweet' and contains(string(), 'covid')]")
 
 threads_lbl = Label(window, text="Scraper threads:", bg=bg_color,fg="#121113", font="bold")
 threads_lbl.pack(side=TOP)

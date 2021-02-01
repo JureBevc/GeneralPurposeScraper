@@ -50,15 +50,15 @@ class Scraper:
                 #print(self.status_string())
                 if self.status_callback:
                     self.status_callback(self.status())
-                time.sleep(10)
+                time.sleep(1)
             print("Ending...")
         except (KeyboardInterrupt, SystemExit):
             print("Exiting...")
             self.stop()
 
     def stop(self):
-        for i in range(self.thread_count):
-            self.threads[i].stop()
+        for thread in self.threads:
+            thread.stop()
         while self.alive_count() > 0:
             print("Stopping {}...".format(self.alive_count()))
             time.sleep(0.2)

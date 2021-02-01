@@ -55,4 +55,5 @@ class Spider(threading.Thread):
         self.driver.quit()
 
     def stop(self):
+        self.driver.quit()
         self.clean_and_exit = True
