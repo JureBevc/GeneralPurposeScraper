@@ -6,7 +6,10 @@ import time
 from general_scraper.scraper import Scraper
 from general_scraper.extractor import Extractor
 
-bg_color = "#fefae0"
+bg_color = "#FFF8F0"
+text_color = "#0C0C0C"
+btn_go_color = "#329F5B"
+btn_stop_color = "#BA3B46"
 
 extract = None
 scraper = None
@@ -45,7 +48,7 @@ Saved: {}
 
 def toggle_button():
     global start_scraper, go_btn, status_lbl, xpath_txt, url_txt, limit_txt, threads_txt, html_is_checked, status_lbl, file_txt
-    global extract, scraper, scraper_thread
+    global extract, scraper, scraper_thread, btn_go_color, btn_stop_color
     start_scraper = not start_scraper 
     if start_scraper:
         if scraper_thread:
@@ -62,7 +65,7 @@ def toggle_button():
 
         go_btn["state"] = DISABLED
         go_btn["text"] = "Stop"
-        go_btn["bg"] = "#e07a5f"
+        go_btn["bg"] = btn_stop_color
         status_lbl["text"] = "Status (RUNNING):\nStarting {} crawlers.".format(scraper.thread_count)
     else:
         stop_scraper_thread = threading.Thread(target=stop_scraper_method)
@@ -71,36 +74,40 @@ def toggle_button():
         status_lbl["text"] = "Status (STOPPING):\nStopping {} crawlers ...".format(scraper.thread_count)
         go_btn["state"] = DISABLED
         go_btn["text"] = "Go!"
-        go_btn["bg"] = "#81b29a"
+        go_btn["bg"] = btn_go_color
 
 def only_numbers(char):
     return char.isdigit()
 
 window = Tk()
-window.geometry("500x600")
+window.iconbitmap("res/icon.ico")
+window.geometry("800x600")
 window.title("General Purpose Scraper")
 window.configure(bg=bg_color)
 only_numbers_command = window.register(only_numbers)
 
-url_lbl = Label(window, text="Starting URLs:", bg=bg_color,fg="#121113", font="bold")
+url_lbl = Label(window, text="Starting URLs:", bg=bg_color,fg=text_color, font="bold")
 url_lbl.pack(side=TOP)
 url_txt = scrolledtext.ScrolledText(window, undo=True, height=6)
 url_txt.pack(side=TOP)
 url_txt.insert(INSERT, "https://twitter.com/slovenija")
 
-limit_lbl = Label(window, text="Limit to URLs:", bg=bg_color,fg="#121113", font="bold")
+ttk.Separator(window, orient=HORIZONTAL).pack(side=TOP, fill="x")
+limit_lbl = Label(window, text="Limit to URLs:", bg=bg_color,fg=text_color, font="bold")
 limit_lbl.pack(side=TOP)
 limit_txt = scrolledtext.ScrolledText(window, undo=True, height=6)
 limit_txt.pack(side=TOP)
 limit_txt.insert(INSERT, "twitter.com\nwww.twitter.com")
 
-xpath_lbl = Label(window, text="XPath expression:", bg=bg_color,fg="#121113", font="bold")
+ttk.Separator(window, orient=HORIZONTAL).pack(side=TOP, fill="x")
+xpath_lbl = Label(window, text="XPath expression:", bg=bg_color,fg=text_color, font="bold")
 xpath_lbl.pack(side=TOP)
 xpath_txt = Entry(window, width=100, justify="center")
 xpath_txt.pack(side=TOP)
 xpath_txt.insert(0, "//div[@data-testid='tweet' and contains(string(), 'covid')]")
 
-threads_lbl = Label(window, text="Scraper threads:", bg=bg_color,fg="#121113", font="bold")
+ttk.Separator(window, orient=HORIZONTAL).pack(side=TOP, fill="x")
+threads_lbl = Label(window, text="Scraper threads:", bg=bg_color,fg=text_color, font="bold")
 threads_lbl.pack(side=TOP)
 threads_txt = Entry(window, width=5, justify="center", validate="all", validatecommand=(only_numbers_command, "%S"))
 threads_txt.pack(side=TOP)
@@ -112,7 +119,7 @@ extract_html_check.pack(side=TOP)
 
 file_frame = Frame(window, width=100, bg=bg_color)
 file_frame.pack(side=TOP)
-file_lbl = Label(file_frame, text="Output file:", bg=bg_color,fg="#121113", font="bold")
+file_lbl = Label(file_frame, text="Output file:", bg=bg_color,fg=text_color, font="bold")
 file_lbl.pack(side=LEFT)
 file_txt = Entry(file_frame, width=50, justify="center")
 file_txt.pack(side=LEFT)
@@ -121,13 +128,12 @@ file_txt.insert(0, "extracted.txt")
 ttk.Separator(window, orient=HORIZONTAL).pack(side=TOP, fill="x")
 ttk.Separator(window, orient=HORIZONTAL).pack(side=TOP, fill="x")
 
-status_lbl = Label(window, text="", bg=bg_color,fg="#000000", font="Tahoma 12 bold", justify="center")
+status_lbl = Label(window, text="", bg=bg_color,fg=text_color, font="Tahoma 12 bold", justify="center")
 status_lbl.pack(side=TOP)
 status_lbl["text"] = "Status:\nScraper ready to start."
 
-ttk.Separator(window, orient=HORIZONTAL).pack(side=TOP, fill="x")
 
-go_btn = Button(window, text="Go!", width=5, height=1, bg="#81b29a", fg="#F8F7FF", font="Tahoma 15 bold", command=toggle_button)
+go_btn = Button(window, text="Go!", width=5, height=1, bg=btn_go_color, fg=text_color, font="Tahoma 15 bold", command=toggle_button)
 go_btn.pack(side=BOTTOM)
 
 thread = threading.Thread(target=scraper_thread)
