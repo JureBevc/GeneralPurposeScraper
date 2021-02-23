@@ -50,7 +50,7 @@ class Scraper:
                 #print(self.status_string())
                 if self.status_callback:
                     self.status_callback(self.status())
-                time.sleep(1)
+                time.sleep(0.2)
             print("Ending...")
         except (KeyboardInterrupt, SystemExit):
             print("Exiting...")
@@ -63,6 +63,7 @@ class Scraper:
             print("Stopping {}...".format(self.alive_count()))
             time.sleep(0.2)
         self.threads = []
+        print("Closing drivers...")
         self.quit_all_drivers()
 
     def pop_queue(self):

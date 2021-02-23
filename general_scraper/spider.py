@@ -68,7 +68,6 @@ class Spider(threading.Thread):
             extracted_elements = self.extractor.xpath_matches(self.driver)
             scroll_count += 1
 
-
     def stop(self):
         self.driver.quit()
         self.clean_and_exit = True
